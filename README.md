@@ -65,8 +65,10 @@ Admin import route (dev)
 
 API endpoints
 - GET /api/vehicles
+- GET /api/lines?mode=bus|tram|train|metro|ship|ferry|taxi
+- GET /api/sites?limit=200&skip=0
 - GET /api/stops/:id/board
-- GET /api/lines/:code/sites?mode=bus|tram|train
+- GET /api/lines/:code/sites?mode=bus|tram|train|metro|ship|ferry|taxi
 - GET /api/lines/id/:id/sites
 - POST /api/admin/import-trafiklab
 

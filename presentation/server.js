@@ -29,6 +29,30 @@ export async function createServer() {
     res.json(vehicles);
   });
 
+  // List all lines
+  app.get('/api/lines', async (req, res) => {
+    try {
+      const { mode } = req.query;
+      const query = mode ? { mode } : {};
+      const lines = await Line.find(query).sort({ mode: 1, code: 1 });
+      res.json(lines);
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  // List all sites (stops)
+  app.get('/api/sites', async (req, res) => {
+    try {
+      const limit = Math.min(parseInt(req.query.limit || '200', 10), 1000);
+      const skip = parseInt(req.query.skip || '0', 10);
+      const sites = await Stop.find({}).sort({ name: 1 }).skip(skip).limit(limit);
+      res.json(sites);
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
   // Stop board endpoint
   app.get('/api/stops/:id/board', async (req, res) => {
     const { id } = req.params;
