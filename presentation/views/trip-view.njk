@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trip Simulation - {{ tripId }}</title>
+  <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+</head>
+<body>
+  <div class="container mt-5">
+    <div class="card text-center">
+      <div class="card-header">
+        <h5>Digital Sign - Trip ID: {{ tripId }}</h5>
+      </div>
+      <div class="card-body">
+        <p class="card-text">Current Stop</p>
+        <h2 class="card-title" id="current-stop">Waiting for data...</h2>
+        <hr>
+        <p class="card-text">Next Stops</p>
+        <ul class="list-group list-group-flush" id="next-stops">
+          <li class="list-group-item">...</li>
+        </ul>
+        <hr>
+        <p class="card-text">Final Destination</p>
+        <h4 id="final-destination">...</h4>
+      </div>
+      <div class="card-footer text-muted">
+        <button id="stop-btn" class="btn btn-danger">Stop Simulation</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const tripId = '{{ tripId }}';
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const ws = new WebSocket(`${wsProtocol}//${window.location.host}`);
+
+    ws.onopen = () => {
+      console.log('Connected to WebSocket server.');
+    };
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+
+      // Atualiza a tela apenas se a mensagem for para esta viagem
+      if (data.type === 'update' && data.tripId === tripId) {
+        document.getElementById('current-stop').textContent = data.currentStop.name;
+        document.getElementById('final-destination').textContent = data.finalDestination.name;
+
+        const nextStopsList = document.getElementById('next-stops');
+        nextStopsList.innerHTML = ''; // Limpa a lista
+        data.nextThreeStops.forEach(stop => {
+          const li = document.createElement('li');
+          li.className = 'list-group-item';
+          li.textContent = stop.name;
+          nextStopsList.appendChild(li);
+        });
+      }
+    };
+
+    document.getElementById('stop-btn').addEventListener('click', () => {
+      fetch(`/trip/stop/${tripId}`, { method: 'POST' })
+        .then(() => {
+          alert('Simulation stopped. You can close this window.');
+          document.body.innerHTML = '<h1>Simulation Stopped</h1>';
+        });
+    });
+  </script>
+</body>
+</html>

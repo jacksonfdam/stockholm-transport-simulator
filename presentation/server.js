@@ -4,6 +4,10 @@ import multer from 'multer';
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import http from 'http';
+import nunjucks from 'nunjucks';
+import { WebSocketServer } from 'ws';
+import { SimulationEngine } from '../application/SimulationEngine.js';
 
 import { connectMongo } from '../config/mongo.js';
 import { config } from '../config/env.js';
@@ -19,9 +23,49 @@ const upload = multer({ storage: multer.memoryStorage() });
 export async function createServer() {
   await connectMongo();
 
-  const app = express();
-  app.use(express.json({ limit: '10mb' }));
-  app.use(morgan('dev'));
+    const app = express();
+    const server = http.createServer(app);
+    const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+    nunjucks.configure(path.join(__dirname, 'views'), {
+        autoescape: true,
+        express: app,
+    });
+    app.set('view engine', 'njk');
+    app.use('/static', express.static(path.join(__dirname, '../../node_modules/bootstrap/dist')));
+
+    const wss = new WebSocketServer({ server });
+    SimulationEngine.initialize(wss);
+
+    app.get('/', async (req, res) => {
+        const lines = await Line.find().sort({ mode: 1, code: 1 }).lean();
+        res.render('select-line.njk', { lines });
+    });
+
+    app.get('/trip/start/:lineId', async (req, res) => {
+        try {
+            const { lineId } = req.params;
+            const trip = await SimulationEngine.startTrip(lineId);
+            res.render('trip-view.njk', { tripId: trip._id.toString(), lineId });
+        } catch (error) {
+            console.error(error);
+            res.status(500).send(error.message);
+        }
+    });
+
+    app.post('/trip/stop/:tripId', async (req, res) => {
+        try {
+            const { tripId } = req.params;
+            await SimulationEngine.stopTrip(tripId);
+            res.json({ message: 'Trip stopped successfully.' });
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    });
+
+    // --- SUAS ROTAS DE API EXISTENTES ---
+    app.use(express.json({ limit: '10mb' }));
+    app.use(morgan('dev'));
 
   // Vehicles endpoint
   app.get('/api/vehicles', async (req, res) => {
@@ -228,11 +272,11 @@ export async function createServer() {
     }
   });
 
-  const server = app.listen(config.port, () => {
-    console.log(`API listening on :${config.port}`);
-  });
+    server.listen(config.port, () => { // ADICIONE ESTA
+        console.log(`Server (API & Simulation) listening on :${config.port}`);
+    });
 
-  return { app, server };
+    return { app, server };
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

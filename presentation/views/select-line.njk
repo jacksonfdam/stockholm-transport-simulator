@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Select a Line</title>
+  <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+</head>
+<body>
+  <div class="container mt-5">
+    <h1>Stockholm Transport Simulator</h1>
+    <p>Select a line to start a new trip simulation.</p>
+    <form action="" method="GET" id="line-form">
+      <div class="mb-3">
+        <label for="line-select" class="form-label">Available Lines</label>
+        <select class="form-select" id="line-select" required>
+          <option value="">-- Please choose a line --</option>
+          {% for line in lines %}
+            <option value="{{ line._id }}">{{ line.mode | capitalize }} - {{ line.code }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Start Simulation</button>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById('line-form').addEventListener('submit', function(event) {
+      event.preventDefault();
+      const selectedLineId = document.getElementById('line-select').value;
+      if (selectedLineId) {
+        // Abre a simulação em uma nova aba
+        window.open(`/trip/start/${selectedLineId}`, '_blank');
+      }
+    });
+  </script>
+</body>
+</html>
