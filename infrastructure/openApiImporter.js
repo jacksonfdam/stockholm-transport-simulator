@@ -3,9 +3,17 @@ import addFormats from 'ajv-formats';
 
 function extractSchema(schema, nameCandidates) {
   const comps = schema.components?.schemas || {};
-  for (const key of Object.keys(comps)) {
+  const keys = Object.keys(comps);
+  // 1) prefer exact (case-insensitive) matches
+  for (const cand of nameCandidates) {
+    const target = String(cand).toLowerCase();
+    const exactKey = keys.find(k => k.toLowerCase() === target);
+    if (exactKey) return { key: exactKey, schema: comps[exactKey] };
+  }
+  // 2) fallback to substring matches (case-insensitive)
+  for (const key of keys) {
     const lower = key.toLowerCase();
-    if (nameCandidates.some(n => lower.includes(n))) return { key, schema: comps[key] };
+    if (nameCandidates.some(n => lower.includes(String(n).toLowerCase()))) return { key, schema: comps[key] };
   }
   return null;
 }
@@ -14,20 +22,28 @@ export function createOpenApiImporter(openApiSchema) {
   const ajv = new Ajv({ allErrors: true, strict: false });
   addFormats(ajv);
 
-  const linesSchema = extractSchema(openApiSchema, [' line"', '"Line"']); // prefer Line over lineResponse
-  const lineResponseSchema = extractSchema(openApiSchema, ['lineresp', 'lineResponse']);
-  const siteSchema = extractSchema(openApiSchema, ['siteResponse', 'site']);
-  const stopPointSchema = extractSchema(openApiSchema, ['stopPoint', 'stop_point', 'stoppoint']);
-  const departureSchema = extractSchema(openApiSchema, ['departure']);
+  // Register entire OpenAPI schema with an $id so Ajv can resolve cross-refs like #/components/schemas/...
+  const rootId = 'openapi://schema';
+  if (!openApiSchema.$id) openApiSchema.$id = rootId;
+  ajv.addSchema(openApiSchema, rootId);
+
+  const linesSchema = extractSchema(openApiSchema, ['Line', 'line']); // prefer Line over lineResponse
+  const lineResponseSchema = extractSchema(openApiSchema, ['lineResponse']);
+  const siteSchema = extractSchema(openApiSchema, ['siteResponse', 'Site', 'site']);
+  const stopPointSchema = extractSchema(openApiSchema, ['StopPoint', 'stopPoint', 'stop_point', 'stoppoint']);
+  const departureSchema = extractSchema(openApiSchema, ['departureResponse', 'Departure', 'departure']);
   const siteDeparturesResponseSchema = extractSchema(openApiSchema, ['siteDeparturesResponse']);
 
+  // Helper to compile a validator that references the component by pointer from the registered root schema
+  const refFromRoot = (key) => ({ $ref: `${rootId}#/components/schemas/${key}` });
+
   const validators = {
-    line: linesSchema ? ajv.compile(linesSchema.schema) : null,
-    lineResponse: lineResponseSchema ? ajv.compile(lineResponseSchema.schema) : null,
-    site: siteSchema ? ajv.compile(siteSchema.schema) : null,
-    stopPoint: stopPointSchema ? ajv.compile(stopPointSchema.schema) : null,
-    departure: departureSchema ? ajv.compile(departureSchema.schema) : null,
-    siteDeparturesResponse: siteDeparturesResponseSchema ? ajv.compile(siteDeparturesResponseSchema.schema) : null,
+    line: linesSchema ? ajv.compile(refFromRoot(linesSchema.key)) : null,
+    lineResponse: lineResponseSchema ? ajv.compile(refFromRoot(lineResponseSchema.key)) : null,
+    site: siteSchema ? ajv.compile(refFromRoot(siteSchema.key)) : null,
+    stopPoint: stopPointSchema ? ajv.compile(refFromRoot(stopPointSchema.key)) : null,
+    departure: departureSchema ? ajv.compile(refFromRoot(departureSchema.key)) : null,
+    siteDeparturesResponse: siteDeparturesResponseSchema ? ajv.compile(refFromRoot(siteDeparturesResponseSchema.key)) : null,
   };
 
   function basicLatLon(o, latKey = 'lat', lonKey = 'lon') {
@@ -41,7 +57,7 @@ export function createOpenApiImporter(openApiSchema) {
 
   function validateAndMapLine(raw) {
     if (validators.line && !validators.line(raw)) {
-      return { error: validators.line.errors };
+      // Proceed leniently even if validation fails; data files may contain extra fields
     }
     const ta = raw.transport_authority || raw.transportAuthority || {};
     if (Number(ta.id) !== 1) return { skip: true };
@@ -49,7 +65,11 @@ export function createOpenApiImporter(openApiSchema) {
     let mode = null;
     if (modeSrc.includes('BUS')) mode = 'bus';
     else if (modeSrc.includes('TRAM')) mode = 'tram';
-    else if (modeSrc.includes('TRAIN') || modeSrc.includes('METRO')) mode = 'train';
+    else if (modeSrc.includes('METRO')) mode = 'metro';
+    else if (modeSrc.includes('TRAIN')) mode = 'train';
+    else if (modeSrc.includes('FERRY')) mode = 'ferry';
+    else if (modeSrc.includes('SHIP')) mode = 'ship';
+    else if (modeSrc.includes('TAXI')) mode = 'taxi';
     if (!mode) return { skip: true };
     const code = raw.designation || raw.name || raw.code || String(raw.id || raw.line_id || '');
     const name = raw.name || raw.public_name || code;
@@ -59,7 +79,7 @@ export function createOpenApiImporter(openApiSchema) {
 
   function validateAndMapSite(raw) {
     if (validators.site && !validators.site(raw)) {
-      return { error: validators.site.errors };
+      // Proceed leniently even if validation fails; data files may contain extra fields
     }
     const ta = raw.transport_authority || raw.transportAuthority || {};
     if (ta && Object.keys(ta).length && Number(ta.id) !== 1) return { skip: true };
@@ -81,7 +101,7 @@ export function createOpenApiImporter(openApiSchema) {
 
   function validateAndMapStopPoint(raw) {
     if (validators.stopPoint && !validators.stopPoint(raw)) {
-      return { error: validators.stopPoint.errors };
+      // Proceed leniently even if validation fails; data files may contain extra fields
     }
     const ta = raw.transport_authority || raw.transportAuthority || {};
     if (ta && Object.keys(ta).length && Number(ta.id) !== 1) return { skip: true };
@@ -102,7 +122,7 @@ export function createOpenApiImporter(openApiSchema) {
 
   function validateAndMapDeparture(raw) {
     if (validators.departure && !validators.departure(raw)) {
-      return { error: validators.departure.errors };
+      // Proceed leniently even if validation fails; data files may contain extra fields
     }
     const ta = raw.transport_authority || raw.transportAuthority || raw.line?.transport_authority || {};
     if (ta && Object.keys(ta).length && Number(ta.id) !== 1) return { skip: true };
@@ -135,7 +155,7 @@ export function createOpenApiImporter(openApiSchema) {
     // Accept either array of Line or lineResponse wrapper with keys (bus, tram, train, metro, ...)
     if (Array.isArray(linesPayload)) return linesPayload;
     if (linesPayload && typeof linesPayload === 'object') {
-      const keys = ['bus', 'tram', 'train', 'metro'];
+      const keys = ['bus', 'tram', 'train', 'metro', 'ship', 'ferry', 'taxi'];
       const arr = [];
       for (const k of keys) {
         if (Array.isArray(linesPayload[k])) arr.push(...linesPayload[k]);

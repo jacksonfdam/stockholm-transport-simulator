@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const VehicleSchema = new mongoose.Schema({
   line: { type: mongoose.Schema.Types.ObjectId, ref: 'Line', required: true },
-  mode: { type: String, enum: ['bus', 'tram', 'train'], required: true },
+  mode: { type: String, enum: ['bus', 'tram', 'train', 'metro', 'ship', 'ferry', 'taxi'], required: true },
   status: { type: String, enum: ['running', 'stopped'], default: 'running' },
   currentStopIndex: { type: Number, default: 0 },
   progressBetweenStops: { type: Number, default: 0 }, // 0..1

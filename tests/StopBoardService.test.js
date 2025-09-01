@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { jest } from '@jest/globals';
 import { StopBoardService } from '../application/StopBoardService.js';
 import { Timetable } from '../domain/models/Timetable.js';
 import { Vehicle } from '../domain/models/Vehicle.js';
@@ -9,9 +10,11 @@ describe('StopBoardService', () => {
     const lineId = new mongoose.Types.ObjectId();
     const stopId = new mongoose.Types.ObjectId();
 
-    jest.spyOn(Vehicle, 'find').mockResolvedValueOnce([
-      { _id: 'v1', line: { _id: lineId, code: '7' }, mode: 'tram', currentStopIndex: 0, progressBetweenStops: 0, direction: 0 },
-    ]);
+    jest.spyOn(Vehicle, 'find').mockReturnValueOnce({
+      populate: () => Promise.resolve([
+        { _id: 'v1', line: { _id: lineId, code: '7' }, mode: 'tram', currentStopIndex: 0, progressBetweenStops: 0, direction: 0 },
+      ])
+    });
     jest.spyOn(Timetable, 'findOne').mockResolvedValue({
       stopTimes: [
         { stop: stopId, arrivalOffsetSec: 0, departureOffsetSec: 20, segmentDurationSec: 3 },
