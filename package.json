@@ -7,6 +7,8 @@
   "scripts": {
     "dev": "nodemon --watch presentation --watch application --watch domain --watch infrastructure --watch config --ext js,json --exec \"node scripts/dev-start.js\"",
     "seed": "node scripts/seed-from-trafiklab.js --data ./",
+    "seed:routes": "node scripts/seed.js",
+    "seed:routes:lines": "node scripts/seed-routes-to-lines.js",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand"
   },
   "dependencies": {
