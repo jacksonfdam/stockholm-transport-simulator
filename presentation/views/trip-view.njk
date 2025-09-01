@@ -4,29 +4,171 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Trip Simulation - {{ tripId }}</title>
+  <!-- Bootstrap para a estrutura base -->
   <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+  <!-- Ícones do Bootstrap -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <style>
+    /* Estilo para simular a tela do display */
+    body {
+      background-color: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .pid-container {
+      width: 100%;
+      max-width: 800px;
+      border: 5px solid #333;
+      border-radius: 10px;
+      background-color: #f8f9fa;
+      overflow: hidden;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+
+    /* Cabeçalho Azul */
+    .pid-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #0d6efd; /* Azul do Bootstrap */
+      color: white;
+      padding: 10px 20px;
+      font-weight: bold;
+    }
+    .pid-header .route-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      font-size: 1.4rem;
+    }
+    .pid-header .logo {
+      font-size: 1.5rem;
+      font-weight: 900;
+    }
+
+    /* Conteúdo Principal com a lista de paradas */
+    .pid-content {
+      padding: 20px;
+    }
+    .stop-list {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+    }
+    .stop-item {
+      display: flex;
+      align-items: center;
+      position: relative;
+      padding: 12px 0 12px 50px; /* Espaço para a linha do tempo */
+      font-size: 1.2rem;
+    }
+
+    /* A Mágica da Linha do Tempo (Timeline) */
+    .stop-item .timeline-graphic {
+      position: absolute;
+      left: 15px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+    }
+    /* Linha vertical contínua */
+    .stop-item .timeline-graphic::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background-color: #0d6efd;
+    }
+    /* Círculo da parada */
+    .stop-item .timeline-graphic::after {
+      content: '';
+      position: absolute;
+      left: -5px; /* Centraliza o círculo na linha */
+      top: 50%;
+      transform: translateY(-50%);
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background-color: #f8f9fa;
+      border: 2px solid #0d6efd;
+    }
+    /* Esconde a linha no último item */
+    .stop-item:last-child .timeline-graphic::before {
+      display: none;
+    }
+    /* Estilo especial para o item de destino */
+    .stop-item.destination .timeline-graphic::after {
+      content: "\f5a1"; /* Ícone de pino do Bootstrap Icons */
+      font-family: "bootstrap-icons";
+      font-size: 1.5rem;
+      color: #333;
+      border: none;
+      background-color: transparent;
+      left: -12px; /* Ajuste de posição para o ícone */
+    }
+    .stop-item.destination .stop-name::before {
+      content: 'DESTINATION';
+      display: block;
+      font-size: 0.7rem;
+      color: #6c757d;
+      font-weight: bold;
+    }
+
+    /* Rodapé Roxo */
+    .pid-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #6f42c1; /* Roxo do Bootstrap */
+      color: white;
+      padding: 10px 20px;
+      font-size: 1.1rem;
+    }
+    .pid-footer .current-time {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  </style>
 </head>
 <body>
-  <div class="container mt-5">
-    <div class="card text-center">
-      <div class="card-header">
-        <h5>Digital Sign - Trip ID: {{ tripId }}</h5>
+
+  <div class="pid-container">
+    <!-- Cabeçalho -->
+    <div class="pid-header">
+      <div class="route-info">
+        <i class="bi bi-bus-front"></i>
+        <span id="route-number">#--</span>
+        <span id="header-destination">Loading destination...</span>
       </div>
-      <div class="card-body">
-        <p class="card-text">Current Stop</p>
-        <h2 class="card-title" id="current-stop">Waiting for data...</h2>
-        <hr>
-        <p class="card-text">Next Stops</p>
-        <ul class="list-group list-group-flush" id="next-stops">
-          <li class="list-group-item">...</li>
-        </ul>
-        <hr>
-        <p class="card-text">Final Destination</p>
-        <h4 id="final-destination">...</h4>
-      </div>
-      <div class="card-footer text-muted">
-        <button id="stop-btn" class="btn btn-danger">Stop Simulation</button>
-      </div>
+      <div class="logo">TC</div>
+    </div>
+
+    <!-- Conteúdo Principal -->
+    <div class="pid-content">
+      <ul class="stop-list" id="stop-list">
+        <!-- Paradas serão inseridas aqui pelo JavaScript -->
+        <li class="stop-item placeholder">
+          <div class="timeline-graphic"></div>
+          <div class="stop-name">Waiting for trip data...</div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Rodapé -->
+    <div class="pid-footer">
+      <span class="welcome-message">Welcome Onboard!</span>
+      <span class="current-time" id="current-time">
+        <i class="bi bi-clock"></i>
+        <span>--:-- --</span>
+      </span>
     </div>
   </div>
 
@@ -35,6 +177,15 @@
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const ws = new WebSocket(`${wsProtocol}//${window.location.host}`);
 
+    // Função para atualizar o relógio
+    function updateClock() {
+      const now = new Date();
+      const timeString = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+      document.querySelector('#current-time span').textContent = timeString;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
     ws.onopen = () => {
       console.log('Connected to WebSocket server.');
     };
@@ -42,29 +193,37 @@
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
 
-      // Atualiza a tela apenas se a mensagem for para esta viagem
       if (data.type === 'update' && data.tripId === tripId) {
-        document.getElementById('current-stop').textContent = data.currentStop.name;
-        document.getElementById('final-destination').textContent = data.finalDestination.name;
+        // Atualiza o cabeçalho
+        document.getElementById('header-destination').textContent = data.finalDestination.name;
+        // Você pode querer buscar o número da linha aqui se precisar
+        // document.getElementById('route-number').textContent = `#${data.lineCode}`;
 
-        const nextStopsList = document.getElementById('next-stops');
-        nextStopsList.innerHTML = ''; // Limpa a lista
+        const stopList = document.getElementById('stop-list');
+        stopList.innerHTML = ''; // Limpa a lista
+
+        // Adiciona as próximas paradas
         data.nextThreeStops.forEach(stop => {
           const li = document.createElement('li');
-          li.className = 'list-group-item';
-          li.textContent = stop.name;
-          nextStopsList.appendChild(li);
+          li.className = 'stop-item';
+          li.innerHTML = `
+            <div class="timeline-graphic"></div>
+            <div class="stop-name">${stop.name}</div>
+          `;
+          stopList.appendChild(li);
         });
+
+        // Adiciona o destino final
+        const destinationLi = document.createElement('li');
+        destinationLi.className = 'stop-item destination';
+        destinationLi.innerHTML = `
+          <div class="timeline-graphic"></div>
+          <div class="stop-name">${data.finalDestination.name}</div>
+        `;
+        stopList.appendChild(destinationLi);
       }
     };
-
-    document.getElementById('stop-btn').addEventListener('click', () => {
-      fetch(`/trip/stop/${tripId}`, { method: 'POST' })
-        .then(() => {
-          alert('Simulation stopped. You can close this window.');
-          document.body.innerHTML = '<h1>Simulation Stopped</h1>';
-        });
-    });
   </script>
+
 </body>
 </html>
