@@ -23,7 +23,7 @@ async function readJson(file) {
 async function main() {
   await connectMongo();
   try {
-    const [schema, lines, sites, stopPoints, departures] = await Promise.all([
+    const [schema, linesInput, sites, stopPoints, departuresInput] = await Promise.all([
       readJson(path.resolve(schemaPath)),
       readJson(path.resolve(dataDir, 'lines.json')).catch(()=>[]),
       readJson(path.resolve(dataDir, 'sites.json')).catch(()=>[]),
@@ -51,8 +51,9 @@ async function main() {
       stopDocs.push(doc);
     }
 
-    // Lines
+    // Lines (handle lineResponse wrapper)
     const lineDocs = [];
+    const lines = importer.parseLinesPayload(linesInput || []);
     for (const r of lines) {
       const out = importer.validateAndMapLine(r);
       if (out.skip || out.error) continue;
@@ -60,8 +61,9 @@ async function main() {
       lineDocs.push(doc);
     }
 
-    // Departures
+    // Departures (handle siteDeparturesResponse wrapper)
     const departuresMapped = [];
+    const departures = importer.parseDeparturesPayload(departuresInput || []);
     for (const r of departures) {
       const out = importer.validateAndMapDeparture(r);
       if (out.skip || out.error) continue;

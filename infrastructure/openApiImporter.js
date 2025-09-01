@@ -14,16 +14,20 @@ export function createOpenApiImporter(openApiSchema) {
   const ajv = new Ajv({ allErrors: true, strict: false });
   addFormats(ajv);
 
-  const linesSchema = extractSchema(openApiSchema, ['line']);
-  const siteSchema = extractSchema(openApiSchema, ['site']);
-  const stopPointSchema = extractSchema(openApiSchema, ['stop_point', 'stoppoint']);
+  const linesSchema = extractSchema(openApiSchema, [' line"', '"Line"']); // prefer Line over lineResponse
+  const lineResponseSchema = extractSchema(openApiSchema, ['lineresp', 'lineResponse']);
+  const siteSchema = extractSchema(openApiSchema, ['siteResponse', 'site']);
+  const stopPointSchema = extractSchema(openApiSchema, ['stopPoint', 'stop_point', 'stoppoint']);
   const departureSchema = extractSchema(openApiSchema, ['departure']);
+  const siteDeparturesResponseSchema = extractSchema(openApiSchema, ['siteDeparturesResponse']);
 
   const validators = {
     line: linesSchema ? ajv.compile(linesSchema.schema) : null,
+    lineResponse: lineResponseSchema ? ajv.compile(lineResponseSchema.schema) : null,
     site: siteSchema ? ajv.compile(siteSchema.schema) : null,
     stopPoint: stopPointSchema ? ajv.compile(stopPointSchema.schema) : null,
     departure: departureSchema ? ajv.compile(departureSchema.schema) : null,
+    siteDeparturesResponse: siteDeparturesResponseSchema ? ajv.compile(siteDeparturesResponseSchema.schema) : null,
   };
 
   function basicLatLon(o, latKey = 'lat', lonKey = 'lon') {
@@ -41,8 +45,11 @@ export function createOpenApiImporter(openApiSchema) {
     }
     const ta = raw.transport_authority || raw.transportAuthority || {};
     if (Number(ta.id) !== 1) return { skip: true };
-    const modeSrc = (raw.transport_mode || raw.transportMode || '').toString().toLowerCase();
-    const mode = modeSrc.includes('bus') ? 'bus' : modeSrc.includes('tram') || modeSrc.includes('spårvagn') ? 'tram' : modeSrc.includes('train') ? 'train' : null;
+    const modeSrc = (raw.transport_mode || raw.transportMode || '').toString().toUpperCase();
+    let mode = null;
+    if (modeSrc.includes('BUS')) mode = 'bus';
+    else if (modeSrc.includes('TRAM')) mode = 'tram';
+    else if (modeSrc.includes('TRAIN') || modeSrc.includes('METRO')) mode = 'train';
     if (!mode) return { skip: true };
     const code = raw.designation || raw.name || raw.code || String(raw.id || raw.line_id || '');
     const name = raw.name || raw.public_name || code;
@@ -106,6 +113,7 @@ export function createOpenApiImporter(openApiSchema) {
     const stopPointId = raw.stop_point?.id || raw.stop_point_id || raw.stopPointId;
     const journeyId = raw.journey?.id || raw.journey_id || raw.journeyId;
 
+    // Local Stockholm time without timezone in schema; Date will parse as local, acceptable for offsets
     const time = (t) => (t ? new Date(t).getTime() : null);
     const st = time(scheduled);
     const et = time(expected);
@@ -123,10 +131,32 @@ export function createOpenApiImporter(openApiSchema) {
     };
   }
 
+  function parseLinesPayload(linesPayload) {
+    // Accept either array of Line or lineResponse wrapper with keys (bus, tram, train, metro, ...)
+    if (Array.isArray(linesPayload)) return linesPayload;
+    if (linesPayload && typeof linesPayload === 'object') {
+      const keys = ['bus', 'tram', 'train', 'metro'];
+      const arr = [];
+      for (const k of keys) {
+        if (Array.isArray(linesPayload[k])) arr.push(...linesPayload[k]);
+      }
+      return arr;
+    }
+    return [];
+  }
+
+  function parseDeparturesPayload(depPayload) {
+    if (Array.isArray(depPayload)) return depPayload; // already array of departure
+    if (depPayload && typeof depPayload === 'object' && Array.isArray(depPayload.departures)) return depPayload.departures;
+    return [];
+  }
+
   return {
     validateAndMapLine,
     validateAndMapSite,
     validateAndMapStopPoint,
     validateAndMapDeparture,
+    parseLinesPayload,
+    parseDeparturesPayload,
   };
 }

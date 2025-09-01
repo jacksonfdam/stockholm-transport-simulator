@@ -65,10 +65,10 @@ export async function createServer() {
         return null;
       }
 
-      const linesRaw = await readJsonInput('lines', 'lines');
+      const linesInput = await readJsonInput('lines', 'lines');
       const sitesRaw = await readJsonInput('sites', 'sites');
       const stopPointsRaw = await readJsonInput('stop_points', 'stop_points');
-      const departuresRaw = await readJsonInput('departures', 'departures');
+      const departuresInput = await readJsonInput('departures', 'departures');
 
       const counts = { stops: 0, lines: 0, timetables: 0, vehicles: 0 };
       const logs = [];
@@ -96,9 +96,10 @@ export async function createServer() {
       }
       counts.stops = stopDocs.length;
 
-      // lines
+      // lines (handle lineResponse wrapper)
       const lineDocs = [];
-      for (const r of (linesRaw || [])) {
+      const linesRaw = importer.parseLinesPayload(linesInput || []);
+      for (const r of linesRaw) {
         const out = importer.validateAndMapLine(r);
         if (out.skip) continue;
         if (out.error) { logs.push({ type: 'line', error: out.error }); continue; }
@@ -111,9 +112,10 @@ export async function createServer() {
       }
       counts.lines = lineDocs.length;
 
-      // departures map
+      // departures map (handle siteDeparturesResponse wrapper)
       const departuresMapped = [];
-      for (const r of (departuresRaw || [])) {
+      const departuresRaw = importer.parseDeparturesPayload(departuresInput || []);
+      for (const r of departuresRaw) {
         const out = importer.validateAndMapDeparture(r);
         if (out.skip) continue;
         if (out.error) { logs.push({ type: 'departure', error: out.error }); continue; }
