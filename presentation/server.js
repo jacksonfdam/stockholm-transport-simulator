@@ -37,6 +37,10 @@ export async function createServer() {
     const wss = new WebSocketServer({ server });
     SimulationEngine.initialize(wss);
 
+    app.get('/map', (req, res) => {
+        res.render('map-view-dom.njk'); // Usando um novo nome de arquivo
+    });
+
     app.get('/', async (req, res) => {
         const lines = await Line.find().sort({ mode: 1, code: 1 }).lean();
         res.render('select-line.njk', { lines });

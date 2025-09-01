@@ -2,6 +2,19 @@
 
 A layered Node.js (ESM) app that simulates Stockholm public transport using static JSON exports from Trafiklab (SL). Import is guided by an OpenAPI schema provided by the user.
 
+References
+
+https://openstreetgs.stockholm.se/tkkarta/v3/preview_opendata/?isymap=api/ShowLayer/Cykelpump_P
+https://www.trafiklab.se/sv/api/our-apis/sl/transport/#/
+https://developers.google.com/transit/gtfs/reference/
+https://www.trafiklab.se/api/our-apis/sl/transport/#/default/Departures
+https://dataportalen.stockholm.se/dataportalen/
+https://www.trafiklab.se/news/2025/2025-01-15-gtfs-booking-rules-areas/
+https://www.trafiklab.se/api/gtfs-datasets/gtfs-sweden/
+https://gtfs.org/documentation/schedule/reference/#agencytxt
+
+
+
 Key points
 - Layers: domain, application, infrastructure, presentation (API), config, scripts
 - Express REST API
