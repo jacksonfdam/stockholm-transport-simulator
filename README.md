@@ -13,13 +13,17 @@ Key points
 Data rules (Trafiklab/SL)
 - Only import objects where transport_authority.id === 1 (Storstockholms Lokaltrafik)
 - JSONs: lines, sites, stop_points, departures
-- Map transport_mode → mode ("bus" | "tram" | "train"); use designation or name as code
-- Stops map from sites and stop_points; include sourceId and sourceType; preserve raw in openApiMeta
+- Map transport_mode → mode ("bus" | "tram" | "train" | "metro" | "ship" | "ferry" | "taxi"); use designation or name as code
+- Stops map from sites and stop_points; include sourceId/sourceType plus externalId and isStopPoint; preserve raw in openApiMeta
+- Departures: stop_area.id and stop_point.id refer to sites and stop points respectively; line.id refers to Line.externalId
 - Timetable is built from departures; if missing, derive durations using geography and average speed
 
 Project structure
 - config/: env and Mongo connection
 - domain/models/: Mongoose models (Stop, Line, Timetable, Vehicle)
+  - Note: We use a single Stop collection for both Sites and Stop Points. Fields:
+    - sourceType: 'site' | 'stop_point'
+    - sourceId/externalId: original numeric id from Trafiklab files (departures.stop_point.id refers to Stop.externalId where sourceType='stop_point').
 - infrastructure/openApiImporter.js: importer factory using AJV
 - application/: services (RouteEngine, VehicleSimulator, LineService, StopBoardService)
 - presentation/server.js: Express API
@@ -35,7 +39,7 @@ Setup
 2. Configure environment (optional):
    - `export MONGO_URI="mongodb://127.0.0.1:27017/stockholm_transport"` (or use your URI)
    - `export PORT=3000` (default 3000)
-3. Start dev server: `npm run dev`
+3. Start dev server: `npm run dev` (uses nodemon for auto-restart)
 
 Quick start with sample data
 1. Place your Trafiklab OpenAPI schema at `./openapi.json`.
@@ -85,6 +89,9 @@ Docker (optional)
 - Services:
   - MongoDB on localhost:27017 (volume persisted)
   - App on http://localhost:3000
+- Live reload in Docker:
+  - The app service mounts the project directory and starts with `npm run dev` which uses nodemon.
+  - When you edit source files on the host, nodemon inside the container restarts the server automatically.
 - Environment:
   - App connects using MONGO_URI=mongodb://mongo:27017/stockholm_transport defined in compose.
   - To seed inside running app container, you can exec:

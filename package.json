@@ -5,7 +5,7 @@
   "type": "module",
   "main": "presentation/server.js",
   "scripts": {
-    "dev": "node scripts/dev-start.js",
+    "dev": "nodemon --watch presentation --watch application --watch domain --watch infrastructure --watch config --ext js,json --exec \"node scripts/dev-start.js\"",
     "seed": "node scripts/seed-from-trafiklab.js --data ./",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand"
   },
@@ -22,6 +22,7 @@
   },
   "devDependencies": {
     "jest": "^29.7.0",
-    "supertest": "^7.0.0"
+    "supertest": "^7.0.0",
+    "nodemon": "^3.1.0"
   }
 }

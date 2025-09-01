@@ -192,7 +192,7 @@ export async function createServer() {
       }
 
       for (const line of lineDocs) {
-        const depsForLine = departuresMapped.filter(d => d.lineId == null || String(d.lineId) === line.openApiMeta?.raw?.id?.toString());
+        const depsForLine = departuresMapped.filter(d => d.lineId == null || String(d.lineId) === String(line.externalId || ''));
         const allStops = stopDocs; // In real scenario, we would associate stops to lines via data; here we fallback
         const orderedStops = orderStopsByProximity(allStops).slice(0, Math.min(10, allStops.length)); // keep small for demo
         const stopTimes = orderedStops.length ? orderedStops : allStops;

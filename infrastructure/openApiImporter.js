@@ -74,7 +74,7 @@ export function createOpenApiImporter(openApiSchema) {
     const code = raw.designation || raw.name || raw.code || String(raw.id || raw.line_id || '');
     const name = raw.name || raw.public_name || code;
     const isCircular = !!raw?.is_circular || !!raw?.circular;
-    return { value: { code, name, mode, isCircular, openApiMeta: { schemaRef: linesSchema?.key, raw } } };
+    return { value: { code, name, mode, isCircular, externalId: String(raw.id ?? raw.line_id ?? ''), openApiMeta: { schemaRef: linesSchema?.key, raw } } };
   }
 
   function validateAndMapSite(raw) {
@@ -92,6 +92,8 @@ export function createOpenApiImporter(openApiSchema) {
         location: { type: 'Point', coordinates: [ll.lon, ll.lat] },
         sourceId: String(raw.id || raw.site_id),
         sourceType: 'site',
+        externalId: String(raw.id || raw.site_id),
+        isStopPoint: false,
         abbreviation: raw.abbreviation,
         designation: raw.designation,
         openApiMeta: { schemaRef: siteSchema?.key, raw },
@@ -114,6 +116,8 @@ export function createOpenApiImporter(openApiSchema) {
         location: { type: 'Point', coordinates: [ll.lon, ll.lat] },
         sourceId: String(raw.id || raw.stop_point_id),
         sourceType: 'stop_point',
+        externalId: String(raw.id || raw.stop_point_id),
+        isStopPoint: true,
         designation: raw.designation,
         openApiMeta: { schemaRef: stopPointSchema?.key, raw },
       }

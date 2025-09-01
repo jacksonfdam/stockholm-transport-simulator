@@ -72,7 +72,7 @@ async function main() {
 
     // Timetables
     for (const line of lineDocs) {
-      const depsForLine = departuresMapped.filter(d => d.lineId == null || String(d.lineId) === line.openApiMeta?.raw?.id?.toString());
+      const depsForLine = departuresMapped.filter(d => d.lineId == null || String(d.lineId) === String(line.externalId || ''));
       // naive ordered stops for demo
       const orderedStops = stopDocs.slice(0, Math.min(10, stopDocs.length));
       const stopTimes = RouteEngine.buildStopTimesForLine(line, orderedStops, depsForLine);
