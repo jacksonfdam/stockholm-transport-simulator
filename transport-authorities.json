@@ -1,0 +1,145 @@
+[
+  {
+    "id": 1,
+    "gid": 9010001000000000,
+    "name": "Storstockholms Lokaltrafik",
+    "formal_name": "AB Storstockholms Lokaltrafik",
+    "code": "SL",
+    "street": "Lindhagensgatan 100",
+    "postal_code": 10573,
+    "city": "Stockholm",
+    "country": "Sweden",
+    "valid": {
+      "from": "2007-08-23T00:00:00"
+    }
+  },
+  {
+    "id": 2,
+    "gid": 9010002000000000,
+    "name": "Upplandstrafiken",
+    "formal_name": "Upplands lokaltrafik",
+    "code": "UL",
+    "valid": {
+      "from": "2007-08-24T00:00:00"
+    }
+  },
+  {
+    "id": 3,
+    "gid": 9010003000000000,
+    "name": "Länstrafiken Sörmland",
+    "formal_name": "Länstrafiken Sörmland",
+    "code": "LT",
+    "valid": {
+      "from": "2007-08-24T00:00:00"
+    }
+  },
+  {
+    "id": 4,
+    "gid": 9010004000000000,
+    "name": "Kommun",
+    "formal_name": "Kommuner i Stockholms Län",
+    "code": "Kommun",
+    "valid": {
+      "from": "2007-08-24T00:00:00"
+    }
+  },
+  {
+    "id": 5,
+    "gid": 9010005000000000,
+    "name": "Färdtjänstnämnden",
+    "formal_name": "Färdtjänstnämnden",
+    "code": "FTN",
+    "valid": {
+      "from": "2007-08-24T00:00:00"
+    }
+  },
+  {
+    "id": 6,
+    "gid": 9010006000000000,
+    "name": "Vägverket",
+    "formal_name": "Vägverket Färjerederiet AB",
+    "code": "VV",
+    "valid": {
+      "from": "2007-08-24T00:00:00"
+    }
+  },
+  {
+    "id": 7,
+    "gid": 9010007000000000,
+    "name": "People Travel Group",
+    "formal_name": "People Travel Group AB",
+    "code": "PTG",
+    "valid": {
+      "from": "2007-08-24T00:00:00"
+    }
+  },
+  {
+    "id": 8,
+    "gid": 9010008000000000,
+    "name": "Waxholmsbolaget",
+    "formal_name": "Waxholmsbolaget Ångfartygs AB",
+    "code": "WÅAB",
+    "valid": {
+      "from": "2007-08-24T00:00:00"
+    }
+  },
+  {
+    "id": 9,
+    "gid": 9010009000000000,
+    "name": "SJ",
+    "formal_name": "SJ AB",
+    "code": "SJ",
+    "valid": {
+      "from": "2007-08-24T00:00:00"
+    }
+  },
+  {
+    "id": 74,
+    "gid": 9010074000000000,
+    "name": "Trafikverket",
+    "formal_name": "Trafikverket",
+    "code": "TRV",
+    "valid": {
+      "from": "2010-11-04T00:00:00"
+    }
+  },
+  {
+    "id": 90,
+    "gid": 9010090000000000,
+    "name": "A-train",
+    "formal_name": "A-Train AB",
+    "code": "AEX",
+    "valid": {
+      "from": "2011-03-05T00:00:00"
+    }
+  },
+  {
+    "id": 92,
+    "gid": 9010092000000000,
+    "name": "A-train AB",
+    "code": "92",
+    "valid": {
+      "from": "2011-02-02T00:00:00"
+    }
+  },
+  {
+    "id": 632,
+    "gid": 9010632000000000,
+    "name": "Roslagens sjötrafik",
+    "formal_name": "Roslagens sjötrafik",
+    "code": "ROS",
+    "valid": {
+      "from": "2018-07-04T00:00:00"
+    }
+  },
+  {
+    "id": 999,
+    "gid": 9010999000000000,
+    "name": "SL Kundtjänst",
+    "formal_name": "AB SL Kundtjänst",
+    "code": "SLK",
+    "valid": {
+      "from": "2007-08-24T00:00:00"
+    }
+  }
+]
