@@ -95,4 +95,10 @@ Docker (optional)
 - Environment:
   - App connects using MONGO_URI=mongodb://mongo:27017/stockholm_transport defined in compose.
   - To seed inside running app container, you can exec:
-    - docker compose exec app node scripts/seed-from-trafiklab.js --schema ./openapi.json --data ./data
+    - Trafiklab import (base data):
+      - docker compose exec app node scripts/seed-from-trafiklab.js --schema ./openapi.json --data ./data
+    - Populate ordered stops per line from definitive routesData (after base seed completes):
+      - docker compose exec app node scripts/seed-routes-to-lines.js
+      - or using npm alias: docker compose exec app npm run seed:routes:lines
+    - Optional simplified seed (separate simple collections, not needed if using existing Line/Stop):
+      - docker compose exec app npm run seed:routes

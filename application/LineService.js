@@ -51,19 +51,39 @@ export class LineService {
     } else {
       throw new Error('Must provide line id or code');
     }
-    const line = await Line.findOne(query).populate('stops');
-    if (!line) return null;
-    // Return stops with a minimal shape
-    const sites = line.stops.map(s => ({
-      id: String(s._id),
-      name: s.name,
-      code: s.code,
-      abbreviation: s.abbreviation,
-      designation: s.designation,
-      sourceId: s.sourceId,
-      sourceType: s.sourceType,
-      location: s.location,
-    }));
-    return { line: { id: String(line._id), code: line.code, mode: line.mode, isCircular: line.isCircular }, sites };
+      const line = await Line.findOne(query).lean();
+
+      if (!line) {
+          return null;
+      }
+
+      const stopsMap = new Map();
+      const stopDocs = await Stop.find({ _id: { $in: line.stops } }).lean();
+      stopDocs.forEach(stop => stopsMap.set(String(stop._id), stop));
+
+      const orderedStops = line.stops
+          .map(stopId => stopsMap.get(String(stopId)))
+          .filter(Boolean);
+
+      const sites = orderedStops.map(s => ({
+          id: String(s._id),
+          name: s.name,
+          code: s.code,
+          abbreviation: s.abbreviation,
+          designation: s.designation,
+          sourceId: s.sourceId,
+          sourceType: s.sourceType,
+          location: s.location,
+      }));
+
+      return {
+          line: {
+              id: String(line._id),
+              code: line.code,
+              mode: line.mode,
+              isCircular: line.isCircular
+          },
+          sites
+      };
   }
 }
