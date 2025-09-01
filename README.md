@@ -76,3 +76,14 @@ Tests
 Notes
 - The importer is schema-agnostic and uses simple heuristics to locate schemas in components.schemas by name. It validates basic types with AJV and filters SL authority.
 - Timetables use departures when possible; otherwise build durations from stop distances. Circular lines detected from data or first==last stop.
+
+Docker (optional)
+- Build and run with Docker Compose:
+  - docker compose up --build
+- Services:
+  - MongoDB on localhost:27017 (volume persisted)
+  - App on http://localhost:3000
+- Environment:
+  - App connects using MONGO_URI=mongodb://mongo:27017/stockholm_transport defined in compose.
+  - To seed inside running app container, you can exec:
+    - docker compose exec app node scripts/seed-from-trafiklab.js --schema ./openapi.json --data ./data
