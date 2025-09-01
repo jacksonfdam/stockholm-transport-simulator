@@ -4,14 +4,14 @@ A layered Node.js (ESM) app that simulates Stockholm public transport using stat
 
 References
 
-https://openstreetgs.stockholm.se/tkkarta/v3/preview_opendata/?isymap=api/ShowLayer/Cykelpump_P
-https://www.trafiklab.se/sv/api/our-apis/sl/transport/#/
-https://developers.google.com/transit/gtfs/reference/
-https://www.trafiklab.se/api/our-apis/sl/transport/#/default/Departures
-https://dataportalen.stockholm.se/dataportalen/
-https://www.trafiklab.se/news/2025/2025-01-15-gtfs-booking-rules-areas/
-https://www.trafiklab.se/api/gtfs-datasets/gtfs-sweden/
-https://gtfs.org/documentation/schedule/reference/#agencytxt
+- https://openstreetgs.stockholm.se/tkkarta/v3/preview_opendata/?isymap=api/ShowLayer/Cykelpump_P
+- https://www.trafiklab.se/sv/api/our-apis/sl/transport/#/
+- https://developers.google.com/transit/gtfs/reference/
+- https://www.trafiklab.se/api/our-apis/sl/transport/#/default/Departures
+- https://dataportalen.stockholm.se/dataportalen/
+- https://www.trafiklab.se/news/2025/2025-01-15-gtfs-booking-rules-areas/
+- https://www.trafiklab.se/api/gtfs-datasets/gtfs-sweden/
+- https://gtfs.org/documentation/schedule/reference/#agencytxt
 
 Setup
 1. Install deps: `npm install`
@@ -83,12 +83,15 @@ Docker (optional)
       - docker compose exec app npm run seed:routes
 
 ## Demo
+
 Select a line
+
 <img width="714" height="424" alt="image" src="https://github.com/user-attachments/assets/eb25ddf9-e7e4-4f9b-983c-b337612ead87" />
 
 Can run multiple:
 
 <img width="737" height="545" alt="image" src="https://github.com/user-attachments/assets/2e0df622-4175-4420-a816-6aed88b4c2dc" />
+
 <img width="705" height="385" alt="image" src="https://github.com/user-attachments/assets/dead6ff9-d397-45e0-a553-636873e77967" />
 
 
