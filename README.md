@@ -1,4 +1,4 @@
-# Stockholm Transport Simulator (Bus/Tram)
+# Stockholm Transport Simulator
 
 A layered Node.js (ESM) app that simulates Stockholm public transport using static JSON exports from Trafiklab (SL). Import is guided by an OpenAPI schema provided by the user.
 
@@ -12,40 +12,6 @@ https://dataportalen.stockholm.se/dataportalen/
 https://www.trafiklab.se/news/2025/2025-01-15-gtfs-booking-rules-areas/
 https://www.trafiklab.se/api/gtfs-datasets/gtfs-sweden/
 https://gtfs.org/documentation/schedule/reference/#agencytxt
-
-
-
-Key points
-- Layers: domain, application, infrastructure, presentation (API), config, scripts
-- Express REST API
-- MongoDB with Mongoose
-- OpenAPI-driven importer with basic validations
-- Vehicle simulator ticking every 5 seconds
-- ES modules, async/await
-
-Data rules (Trafiklab/SL)
-- Only import objects where transport_authority.id === 1 (Storstockholms Lokaltrafik)
-- JSONs: lines, sites, stop_points, departures
-- Map transport_mode → mode ("bus" | "tram" | "train" | "metro" | "ship" | "ferry" | "taxi"); use designation or name as code
-- Stops map from sites and stop_points; include sourceId/sourceType plus externalId and isStopPoint; preserve raw in openApiMeta
-- Departures: stop_area.id and stop_point.id refer to sites and stop points respectively; line.id refers to Line.externalId
-- Timetable is built from departures; if missing, derive durations using geography and average speed
-
-Project structure
-- config/: env and Mongo connection
-- domain/models/: Mongoose models (Stop, Line, Timetable, Vehicle)
-  - Note: We use a single Stop collection for both Sites and Stop Points. Fields:
-    - sourceType: 'site' | 'stop_point'
-    - sourceId/externalId: original numeric id from Trafiklab files (departures.stop_point.id refers to Stop.externalId where sourceType='stop_point').
-- infrastructure/openApiImporter.js: importer factory using AJV
-- application/: services (RouteEngine, VehicleSimulator, LineService, StopBoardService)
-- presentation/server.js: Express API
-- scripts/: seed and dev start
-- tests/: unit tests (Jest)
-
-Prerequisites
-- Node.js LTS (>=18)
-- MongoDB running locally or a connection URI
 
 Setup
 1. Install deps: `npm install`
@@ -115,3 +81,21 @@ Docker (optional)
       - or using npm alias: docker compose exec app npm run seed:routes:lines
     - Optional simplified seed (separate simple collections, not needed if using existing Line/Stop):
       - docker compose exec app npm run seed:routes
+
+## Demo
+Select a line
+<img width="714" height="424" alt="image" src="https://github.com/user-attachments/assets/eb25ddf9-e7e4-4f9b-983c-b337612ead87" />
+
+Can run multiple:
+
+<img width="737" height="545" alt="image" src="https://github.com/user-attachments/assets/2e0df622-4175-4420-a816-6aed88b4c2dc" />
+<img width="705" height="385" alt="image" src="https://github.com/user-attachments/assets/dead6ff9-d397-45e0-a553-636873e77967" />
+
+
+Watch the map:
+
+// TODO: Fix the map elements and animations
+
+<img width="1807" height="1277" alt="image" src="https://github.com/user-attachments/assets/772631ef-6133-4824-8510-a714ef1e716d" />
+
+
