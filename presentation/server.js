@@ -38,6 +38,33 @@ export async function createServer() {
     res.json(board);
   });
 
+  // Get sites for a specific line by code (optionally filter by mode)
+  app.get('/api/lines/:code/sites', async (req, res) => {
+    const { code } = req.params;
+    const { mode } = req.query; // bus | tram | train (optional)
+    try {
+      const { LineService } = await import('../application/LineService.js');
+      const result = await LineService.getSitesForLine({ code, mode });
+      if (!result) return res.status(404).json({ error: 'Line not found' });
+      res.json(result);
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  // Get sites for a specific line by ObjectId
+  app.get('/api/lines/id/:id/sites', async (req, res) => {
+    const { id } = req.params;
+    try {
+      const { LineService } = await import('../application/LineService.js');
+      const result = await LineService.getSitesForLine({ id });
+      if (!result) return res.status(404).json({ error: 'Line not found' });
+      res.json(result);
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
   // Admin import endpoint
   app.post('/api/admin/import-trafiklab', upload.any(), async (req, res) => {
     try {

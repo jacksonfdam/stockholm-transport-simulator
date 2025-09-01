@@ -1,0 +1,196 @@
+{
+  "departures": [
+    {
+      "destination": "Skarpnäck",
+      "direction_code": 2,
+      "direction": "Skarpnäck",
+      "state": "EXPECTED",
+      "display": "5 min",
+      "scheduled": "2025-09-01T08:15:15",
+      "expected": "2025-09-01T08:16:06",
+      "journey": {
+        "id": 2025090111253,
+        "state": "NORMALPROGRESS",
+        "prediction_state": "NORMAL"
+      },
+      "stop_area": {
+        "id": 1151,
+        "name": "Fridhemsplan",
+        "type": "METROSTN"
+      },
+      "stop_point": {
+        "id": 1152,
+        "name": "Fridhemsplan",
+        "designation": "2"
+      },
+      "line": {
+        "id": 17,
+        "designation": "17",
+        "transport_authority_id": 1,
+        "transport_mode": "METRO",
+        "group_of_lines": "Tunnelbanans gröna linje"
+      },
+      "deviations": []
+    },
+    {
+      "destination": "Alvik",
+      "direction_code": 1,
+      "direction": "Hässelby strand",
+      "state": "EXPECTED",
+      "display": "5 min",
+      "scheduled": "2025-09-01T08:16:30",
+      "expected": "2025-09-01T08:16:33",
+      "journey": {
+        "id": 2025090110996,
+        "state": "NORMALPROGRESS",
+        "prediction_state": "NORMAL"
+      },
+      "stop_area": {
+        "id": 1151,
+        "name": "Fridhemsplan",
+        "type": "METROSTN"
+      },
+      "stop_point": {
+        "id": 1151,
+        "name": "Fridhemsplan",
+        "designation": "1"
+      },
+      "line": {
+        "id": 17,
+        "designation": "17",
+        "transport_authority_id": 1,
+        "transport_mode": "METRO",
+        "group_of_lines": "Tunnelbanans gröna linje"
+      },
+      "deviations": []
+    },
+    {
+      "destination": "Åkeshov",
+      "direction_code": 1,
+      "direction": "Hässelby strand",
+      "state": "EXPECTED",
+      "display": "12 min",
+      "scheduled": "2025-09-01T08:22:30",
+      "expected": "2025-09-01T08:23:32",
+      "journey": {
+        "id": 2025090110997,
+        "state": "NORMALPROGRESS",
+        "prediction_state": "NORMAL"
+      },
+      "stop_area": {
+        "id": 1151,
+        "name": "Fridhemsplan",
+        "type": "METROSTN"
+      },
+      "stop_point": {
+        "id": 1151,
+        "name": "Fridhemsplan",
+        "designation": "1"
+      },
+      "line": {
+        "id": 17,
+        "designation": "17",
+        "transport_authority_id": 1,
+        "transport_mode": "METRO",
+        "group_of_lines": "Tunnelbanans gröna linje"
+      },
+      "deviations": []
+    },
+    {
+      "destination": "Skarpnäck",
+      "direction_code": 2,
+      "direction": "Skarpnäck",
+      "state": "EXPECTED",
+      "display": "14 min",
+      "scheduled": "2025-09-01T08:25:15",
+      "expected": "2025-09-01T08:25:15",
+      "journey": {
+        "id": 2025090110088,
+        "state": "EXPECTED"
+      },
+      "stop_area": {
+        "id": 1151,
+        "name": "Fridhemsplan",
+        "type": "METROSTN"
+      },
+      "stop_point": {
+        "id": 1152,
+        "name": "Fridhemsplan",
+        "designation": "2"
+      },
+      "line": {
+        "id": 17,
+        "designation": "17",
+        "transport_authority_id": 1,
+        "transport_mode": "METRO",
+        "group_of_lines": "Tunnelbanans gröna linje"
+      },
+      "deviations": []
+    },
+    {
+      "destination": "Vällingby",
+      "direction_code": 1,
+      "direction": "Hässelby strand",
+      "state": "EXPECTED",
+      "display": "18 min",
+      "scheduled": "2025-09-01T08:28:30",
+      "expected": "2025-09-01T08:29:02",
+      "journey": {
+        "id": 2025090110998,
+        "state": "NORMALPROGRESS",
+        "prediction_state": "NORMAL"
+      },
+      "stop_area": {
+        "id": 1151,
+        "name": "Fridhemsplan",
+        "type": "METROSTN"
+      },
+      "stop_point": {
+        "id": 1151,
+        "name": "Fridhemsplan",
+        "designation": "1"
+      },
+      "line": {
+        "id": 17,
+        "designation": "17",
+        "transport_authority_id": 1,
+        "transport_mode": "METRO",
+        "group_of_lines": "Tunnelbanans gröna linje"
+      },
+      "deviations": []
+    },
+    {
+      "destination": "Skarpnäck",
+      "direction_code": 2,
+      "direction": "Skarpnäck",
+      "state": "EXPECTED",
+      "display": "23 min",
+      "scheduled": "2025-09-01T08:34:15",
+      "expected": "2025-09-01T08:34:43",
+      "journey": {
+        "id": 2025090110597,
+        "state": "NORMALPROGRESS",
+        "prediction_state": "NORMAL"
+      },
+      "stop_area": {
+        "id": 1151,
+        "name": "Fridhemsplan",
+        "type": "METROSTN"
+      },
+      "stop_point": {
+        "id": 1152,
+        "name": "Fridhemsplan",
+        "designation": "2"
+      },
+      "line": {
+        "id": 17,
+        "designation": "17",
+        "transport_authority_id": 1,
+        "transport_mode": "METRO",
+        "group_of_lines": "Tunnelbanans gröna linje"
+      },
+      "deviations": []
+    }
+  ],
+  "stop_deviations": []
+}

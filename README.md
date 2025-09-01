@@ -26,10 +26,26 @@ Project structure
 - scripts/: seed and dev start
 - tests/: unit tests (Jest)
 
+Prerequisites
+- Node.js LTS (>=18)
+- MongoDB running locally or a connection URI
+
 Setup
 1. Install deps: `npm install`
-2. Set Mongo URI if needed: `export MONGO_URI="mongodb://127.0.0.1:27017/stockholm_transport"`
+2. Configure environment (optional):
+   - `export MONGO_URI="mongodb://127.0.0.1:27017/stockholm_transport"` (or use your URI)
+   - `export PORT=3000` (default 3000)
 3. Start dev server: `npm run dev`
+
+Quick start with sample data
+1. Place your Trafiklab OpenAPI schema at `./openapi.json`.
+2. Put static JSONs under `./data` (or adjust paths):
+   - `data/lines.json`
+   - `data/sites.json`
+   - `data/stop-points.json`
+   - `data/departures.json` (optional)
+3. Seed database: `npm run seed -- --schema ./openapi.json --data ./data`
+4. Open http://localhost:3000 and use the API endpoints below.
 
 Seed with static JSONs
 - Files expected: lines.json, sites.json, stop-points.json, departures.json
@@ -50,6 +66,8 @@ Admin import route (dev)
 API endpoints
 - GET /api/vehicles
 - GET /api/stops/:id/board
+- GET /api/lines/:code/sites?mode=bus|tram|train
+- GET /api/lines/id/:id/sites
 - POST /api/admin/import-trafiklab
 
 Tests

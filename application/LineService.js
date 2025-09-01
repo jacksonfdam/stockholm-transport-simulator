@@ -39,4 +39,31 @@ export class LineService {
 
     return { line, stops: stopDocs };
   }
+
+  // Fetch sites (stops) for a specific line. Supports lookup by id or by code+mode.
+  static async getSitesForLine({ id = null, code = null, mode = null } = {}) {
+    let query = null;
+    if (id) {
+      query = { _id: id };
+    } else if (code) {
+      // If mode provided, include it to disambiguate. Otherwise search by code only.
+      query = mode ? { code, mode } : { code };
+    } else {
+      throw new Error('Must provide line id or code');
+    }
+    const line = await Line.findOne(query).populate('stops');
+    if (!line) return null;
+    // Return stops with a minimal shape
+    const sites = line.stops.map(s => ({
+      id: String(s._id),
+      name: s.name,
+      code: s.code,
+      abbreviation: s.abbreviation,
+      designation: s.designation,
+      sourceId: s.sourceId,
+      sourceType: s.sourceType,
+      location: s.location,
+    }));
+    return { line: { id: String(line._id), code: line.code, mode: line.mode, isCircular: line.isCircular }, sites };
+  }
 }
