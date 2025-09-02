@@ -1,32 +1,32 @@
 import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
 
+
 plugins {
     alias(libs.plugins.multiplatform)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.compose)
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlinx.serialization)
-    alias(libs.plugins.protobuf)
     alias(libs.plugins.gmazzo)
 }
 
 buildConfig {
     packageName("com.jacksonfdam.transportdisplaykmp.config")
 
-    buildConfigField("String", "SERVER_HOST", "${project.property("serverHost")}")
+    buildConfigField("String", "SERVER_HOST", "\"${project.property("serverHost")}\"")
     buildConfigField("Int", "SERVER_PORT", (project.property("serverPort") as String).toInt())
 }
 kotlin {
     androidTarget {
-        //https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-test.html
+        // https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-test.html
         instrumentedTestVariant.sourceSetTree.set(KotlinSourceSetTree.test)
     }
 
     listOf(
         iosX64(),
         iosArm64(),
-        iosSimulatorArm64()
+        iosSimulatorArm64(),
     ).forEach {
         it.binaries.framework {
             baseName = "ComposeApp"
@@ -52,6 +52,8 @@ kotlin {
             implementation(libs.ktor.serialization.kotlinx.protobuf)
             implementation(libs.ktor.client.logging)
             implementation(libs.kotlinx.serialization.json)
+            implementation(libs.kotlinx.serialization.core)
+            implementation(libs.kotlinx.serialization.protobuf)
             implementation(libs.kotlinx.datetime)
             api(libs.koin.core)
             implementation(libs.koin.compose.viewmodel)
@@ -60,10 +62,6 @@ kotlin {
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
             implementation(compose.materialIconsExtended)
-        }
-
-        commonMain {
-            kotlin.srcDir("build/generated/source/proto/main/kotlin")
         }
 
         commonTest.dependencies {
@@ -78,6 +76,7 @@ kotlin {
             implementation(libs.androidx.activityCompose)
             implementation(libs.kotlinx.coroutines.android)
             implementation(libs.ktor.client.okhttp)
+            implementation(libs.ktor.client.cio)
             implementation(libs.koin.android)
             implementation(libs.koin.compose)
         }
@@ -85,7 +84,6 @@ kotlin {
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
         }
-
     }
 }
 
@@ -104,26 +102,7 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 }
-
-protobuf {
-    protoc {
-        artifact = "com.google.protobuf:protoc:4.32.0"
-    }
-    generateProtoTasks {
-        all().forEach { task ->
-            task.builtins {
-                create("kotlin") {
-                    option("lite")
-                }
-            }
-        }
-    }
-    sourceSets {
-        // getByName("main").srcDir("src/commonMain/proto")
-    }
-}
-
-//https://developer.android.com/develop/ui/compose/testing#setup
+// https://developer.android.com/develop/ui/compose/testing#setup
 dependencies {
     androidTestImplementation(libs.androidx.uitest.junit4)
     debugImplementation(libs.androidx.uitest.testManifest)
