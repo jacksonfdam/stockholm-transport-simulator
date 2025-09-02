@@ -14,6 +14,7 @@ plugins {
 buildConfig {
     packageName("com.jacksonfdam.transportdisplaykmp.config")
 
+    buildConfigField("String", "SERVER_HOST_URL", "\"${project.property("serverHostURL")}\"")
     buildConfigField("String", "SERVER_HOST", "\"${project.property("serverHost")}\"")
     buildConfigField("Int", "SERVER_PORT", (project.property("serverPort") as String).toInt())
 }

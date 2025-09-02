@@ -5,28 +5,69 @@ import { Line } from '../domain/models/Line.js';
 class Engine {
     constructor() {
         this.wss = null;
-        this.activeTrips = new Map(); // Map<tripId, intervalId>
+        this.activeTrips = new Map();
     }
-
     initialize(wss) {
         this.wss = wss;
+        this.wss.clientsByTrip = new Map();
         console.log('Simulation Engine Initialized.');
+        this.wss.on('connection', (ws, req) => {
+            const pathname = new URL(req.url, `http://${req.headers.host}`).pathname;
+            const tripId = pathname.split('/').pop();
+
+            if (tripId && this.activeTrips.has(tripId)) {
+                if (!this.wss.clientsByTrip.has(tripId)) {
+                    this.wss.clientsByTrip.set(tripId, new Set());
+                }
+                this.wss.clientsByTrip.get(tripId).add(ws);
+                console.log(`Client connected to trip ${tripId}`);
+
+                ws.on('close', () => {
+                    this.wss.clientsByTrip.get(tripId)?.delete(ws);
+                    console.log(`Client disconnected from trip ${tripId}`);
+                });
+
+                const tripData = this.activeTrips.get(tripId);
+                if (tripData) {
+                    this._tick(tripId, tripData.line, true);
+                }
+
+            } else {
+                console.log(`Connection rejected for invalid tripId: ${tripId}`);
+                ws.close(1011, 'Invalid Trip ID');
+            }
+        });
+        console.log('Simulation Engine Initialized.');
+    }
+
+    getActiveTrips() {
+        const tripsList = [];
+        for (const [tripId, tripData] of this.activeTrips.entries()) {
+            tripsList.push({
+                tripId: tripId,
+                lineId: tripData.line._id.toString(),
+                lineNumber: tripData.line.code,
+                transportMode: tripData.line.mode,
+            });
+        }
+        return tripsList;
     }
 
     async startTrip(lineId) {
         const line = await Line.findById(lineId).populate('stops').lean();
-        if (!line || !line.stops || line.stops.length === 0) throw new Error('Line not found or has no stops');
+        if (!line) throw new Error('Line not found');
 
         const trip = await Trip.create({ line: lineId });
         await VehicleState.create({ trip: trip._id, line: lineId });
 
         const tripId = trip._id.toString();
-        const intervalId = setInterval(() => this._tick(tripId, line), 5000);
-        this.activeTrips.set(tripId, intervalId);
 
-        // Envia o estado inicial imediatamente
-        this._tick(tripId, line, true);
+        const intervalId = setInterval(async () => {
+            await this._tick(tripId, line);
+        }, 5000);
 
+        this.activeTrips.set(tripId, { intervalId, line, trip });
+        console.log(`Trip ${tripId} started on line ${line.code}`);
         return trip;
     }
 
@@ -40,7 +81,7 @@ class Engine {
         }
     }
 
-    async _tick(tripId, line, isInitialTick = false) {
+    async _tick(tripId, line, isInitialSend = false) {
         let state = await VehicleState.findOne({ trip: tripId });
         if (!state) {
             this.stopTrip(tripId);
@@ -49,7 +90,7 @@ class Engine {
 
         if (state.status === 'WAITING_AT_TERMINAL') return;
 
-        if (!isInitialTick) {
+        if (!isInitialSend) {
             const nextStopIndex = state.currentStopIndex + state.direction;
             const collisionCheck = await VehicleState.findOne({
                 line: state.line,
@@ -77,6 +118,9 @@ class Engine {
                 }, 120000); // 2 minutos
             }
             await state.save();
+
+            const payload = this._prepareDisplayPayload(state, line.stops);
+            this._broadcast(tripId, payload);
         }
 
         const payload = this._prepareDisplayPayload(state, line.stops);
@@ -104,11 +148,14 @@ class Engine {
     _broadcast(tripId, payload) {
         if (!this.wss) return;
         const message = JSON.stringify({ type: 'update', ...payload });
-        this.wss.clients.forEach(client => {
-            if (client.readyState === client.OPEN) {
-                client.send(message);
-            }
-        });
+        const clients = this.wss.clientsByTrip.get(tripId);
+        if (clients) {
+            clients.forEach(client => {
+                if (client.readyState === client.OPEN) {
+                    client.send(message);
+                }
+            });
+        }
     }
 }
 

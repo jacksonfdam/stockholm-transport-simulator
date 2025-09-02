@@ -21,14 +21,14 @@ class TripUpdateDataSource(
     private val json = Json { ignoreUnknownKeys = true }
     private val TAG = "TripUpdateDataSource"
 
-    fun connect(lineId: String): Flow<WebSocketMessage> =
+    fun connect(tripId: String): Flow<WebSocketMessage> =
         flow {
             val host = BuildConfig.SERVER_HOST
             val port = BuildConfig.SERVER_PORT
 
             AppLogger.i(TAG, "Connecting to WebSocket = $host:$port")
 
-            httpClient.webSocket(host = "192.168.0.8", port = 3000, path = "/trip/$lineId") {
+            httpClient.webSocket(host = "192.168.0.8", port = 3000, path = "/trip/$tripId") {
                 for (frame in incoming) {
                     if (frame is Frame.Text) {
                         val jsonString = frame.readText()
@@ -42,7 +42,7 @@ class TripUpdateDataSource(
                 }
             }
         }.catch { e ->
-            AppLogger.e(TAG, "WebSocket connection failed for line: $lineId", e)
+            AppLogger.e(TAG, "WebSocket connection failed for tripId: $tripId", e)
             throw e
         }
 }

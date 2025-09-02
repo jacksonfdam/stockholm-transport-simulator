@@ -26,14 +26,13 @@ import org.koin.compose.koinInject
 
 @Composable
 fun TripScreen(
-    lineId: String,
-    viewModel: TripViewModel = koinInject() // Injeta o ViewModel compartilhado
+    tripId: String,
+    viewModel: TripViewModel = koinInject()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    // Inicia a observação quando a tela aparece
-    LaunchedEffect(key1 = lineId) {
-        viewModel.startObservingTrip(lineId)
+    LaunchedEffect(key1 = tripId) {
+        viewModel.startObservingTrip(tripId)
     }
 
     Box(
