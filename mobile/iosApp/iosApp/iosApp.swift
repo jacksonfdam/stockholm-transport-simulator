@@ -3,10 +3,6 @@ import ComposeApp
 
 @main
 struct ComposeApp: App {
-    init() {
-        startKoin()
-    }
-
     var body: some Scene {
         WindowGroup {
             ContentView().ignoresSafeArea(.all)
