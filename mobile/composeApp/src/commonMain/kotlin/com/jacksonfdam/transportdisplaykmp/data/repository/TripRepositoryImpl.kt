@@ -8,12 +8,12 @@ import kotlinx.coroutines.flow.map
 
 class TripRepositoryImpl(private val dataSource: TripUpdateDataSource) : TripRepository {
     override fun getTripUpdates(lineId: String): Flow<TripDisplayInfo> {
-        return dataSource.connect(lineId).map { dataModel ->
+        return dataSource.connect(lineId).map { message ->
             TripDisplayInfo(
-                currentStation = dataModel.currentStation.name,
-                lineNumber = dataModel.lineInfo.lineNumber,
-                nextStations = dataModel.nextStations.map { it.name },
-                finalDestination = dataModel.finalDestination.name
+                currentStation = message.currentStation.name,
+                lineNumber = lineId,
+                nextStations = message.nextThreeStops.map { it.name },
+                finalDestination = message.finalDestination.name
             )
         }
     }
